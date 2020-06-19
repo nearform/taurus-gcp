@@ -29,15 +29,6 @@ provider "google-beta" {
 #   cluster_ca_certificate = module.gke.cluster_ca_certificate
 # }
 
-# provider "helm" {
-#   kubernetes {
-#     load_config_file       = false
-#     host                   = module.gke.cluster_host
-#     token                  = data.google_client_config.current.access_token
-#     cluster_ca_certificate = module.gke.cluster_ca_certificate
-#   }
-# }
-
 # DNS Managed Zone
 
 # data "google_dns_managed_zone" "main" {
@@ -100,10 +91,3 @@ module "web" {
   # db_user = module.database.cloudsql_db_user
   # db_pass = module.database.cloudsql_db_pass
 }
-
-# module "k8s_addons" {
-#   source = "./../common/modules/k8s-addons"
-
-#   nginx_ingress_ip = module.impa_web.nginx_ingress_ip_adress
-#   gcp_project_id   = var.gcp_project_id
-# }

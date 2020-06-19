@@ -2,6 +2,7 @@ resource "google_container_cluster" "main" {
   provider           = google-beta # because of release_channel block
   name               = var.cluster_name
   location           = var.zone
+
   release_channel {
     channel = "STABLE"
   }
