@@ -33,4 +33,15 @@ resource "google_container_cluster" "main" {
     cluster_secondary_range_name  = "pods"
     services_secondary_range_name = "services"
   }
+
+  network_policy {
+    enabled  = var.network_policy
+    provider = "CALICO"
+  }
+
+  addons_config {
+    network_policy_config {
+      disabled = !var.network_policy
+    }
+  }
 }

@@ -20,15 +20,6 @@ provider "google-beta" {
   zone        = var.zone
 }
 
-# data "google_client_config" "current" {}
-
-# provider "kubernetes" {
-#   load_config_file       = false
-#   host                   = module.gke.cluster_host
-#   token                  = data.google_client_config.current.access_token
-#   cluster_ca_certificate = module.gke.cluster_ca_certificate
-# }
-
 # DNS Managed Zone
 
 # data "google_dns_managed_zone" "main" {
@@ -52,6 +43,7 @@ module "gke" {
   subnetwork_self_link = module.vpc.subnetwork_self_link
   cluster_name         = var.project_name
   zone                 = var.zone
+  network_policy       = true
 }
 
 # module "database" {
