@@ -1,4 +1,4 @@
-variable "gcp_project_id" {
+variable "project_id" {
   default = "taurus-279813"
 }
 

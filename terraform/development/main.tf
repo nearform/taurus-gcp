@@ -8,14 +8,14 @@ terraform {
 
 provider "google" {
   credentials = file("key.json")
-  project     = var.gcp_project_id
+  project     = var.project_id
   region      = var.region
   zone        = var.zone
 }
 
 provider "google-beta" {
   credentials = file("key.json")
-  project     = var.gcp_project_id
+  project     = var.project_id
   region      = var.region
   zone        = var.zone
 }
@@ -39,10 +39,11 @@ module "vpc" {
 module "gke" {
   source = "./../common/modules/gke"
 
+  project_id           = var.project_id
   network_self_link    = module.vpc.network_self_link
   subnetwork_self_link = module.vpc.subnetwork_self_link
   cluster_name         = var.project_name
-  zone                 = var.zone
+  location             = var.zone
   network_policy       = true
 }
 
@@ -67,7 +68,7 @@ module "web" {
   source = "./../common/modules/web"
 
   gke_cluster_name      = module.gke.cluster_name
-  gke_zone              = var.zone
+  gke_location          = var.zone
   gke_node_pool_name    = var.web_gke_node_pool.name
   gke_min_node_count    = var.web_gke_node_pool.min_node_count
   gke_max_node_count    = var.web_gke_node_pool.max_node_count
@@ -75,8 +76,6 @@ module "web" {
 
   # google_dns_managed_zone_name     = data.google_dns_managed_zone.main.name
   # google_dns_managed_zone_dns_name = data.google_dns_managed_zone.main.dns_name
-
-  # nginx_ingress_static_ip_region = var.region
 
   # db_host = module.database.cloudsql_db_host
   # db_name = module.database.cloudsql_db_name

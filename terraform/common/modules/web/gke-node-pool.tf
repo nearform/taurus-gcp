@@ -1,13 +1,14 @@
 variable "gke_node_pool_name" {}
-variable "gke_zone" {}
+variable "gke_location" {}
 variable "gke_cluster_name" {}
 variable "gke_min_node_count" {}
 variable "gke_max_node_count" {}
 variable "gke_node_machine_type" {}
 
 resource "google_container_node_pool" "main" {
+  provider           = google-beta # because of workload_metadata_config block
   name               = var.gke_node_pool_name
-  location           = var.gke_zone
+  location           = var.gke_location
   cluster            = var.gke_cluster_name
   initial_node_count = var.gke_min_node_count
   
@@ -30,5 +31,9 @@ resource "google_container_node_pool" "main" {
       "logging-write",
       "monitoring",
     ]
+
+    workload_metadata_config {
+      node_metadata = "GKE_METADATA_SERVER"
+    }
   }
 }

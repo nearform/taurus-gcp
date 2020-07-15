@@ -1,7 +1,7 @@
 resource "google_container_cluster" "main" {
   provider           = google-beta # because of release_channel block
   name               = var.cluster_name
-  location           = var.zone
+  location           = var.location
 
   release_channel {
     channel = "STABLE"
@@ -34,6 +34,11 @@ resource "google_container_cluster" "main" {
     services_secondary_range_name = "services"
   }
 
+  vertical_pod_autoscaling {
+    enabled = false
+  }
+
+
   network_policy {
     enabled  = var.network_policy
     provider = "CALICO"
@@ -43,5 +48,9 @@ resource "google_container_cluster" "main" {
     network_policy_config {
       disabled = !var.network_policy
     }
+  }
+
+  workload_identity_config {
+    identity_namespace = "${var.project_id}.svc.id.goog"
   }
 }
