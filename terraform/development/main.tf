@@ -22,9 +22,10 @@ provider "google-beta" {
 
 # DNS Managed Zone
 
-# data "google_dns_managed_zone" "main" {
-#   name = var.dns_managed_zone_name
-# }
+resource "google_dns_managed_zone" "main" {
+  name     = var.project_name
+  dns_name = "taurus-example.com."
+}
 
 # Modules
 
@@ -43,7 +44,7 @@ module "gke" {
   network_self_link    = module.vpc.network_self_link
   subnetwork_self_link = module.vpc.subnetwork_self_link
   cluster_name         = var.project_name
-  location             = var.zone
+  location             = var.zone # var.zone | var.region
   network_policy       = true
   authorized_networks  = var.authorized_networks
 }
@@ -61,8 +62,10 @@ module "database" {
   cloudsql_db_user = var.project_name
 }
 
-module "web" {
-  source = "./../common/modules/web"
+module "example_app" {
+  source = "./../common/modules/example-app"
+
+  project_id = var.project_id
 
   gke_cluster_name      = module.gke.cluster_name
   gke_location          = var.zone
@@ -71,11 +74,11 @@ module "web" {
   gke_max_node_count    = var.web_gke_node_pool.max_node_count
   gke_node_machine_type = var.web_gke_node_pool.node_machine_type
 
-  # google_dns_managed_zone_name     = data.google_dns_managed_zone.main.name
-  # google_dns_managed_zone_dns_name = data.google_dns_managed_zone.main.dns_name
+  google_dns_managed_zone_name     = google_dns_managed_zone.main.name
+  google_dns_managed_zone_dns_name = google_dns_managed_zone.main.dns_name
 
-  # db_host = module.database.cloudsql_db_host
-  # db_name = module.database.cloudsql_db_name
-  # db_user = module.database.cloudsql_db_user
-  # db_pass = module.database.cloudsql_db_pass
+  cloudsql_connection_name = module.database.cloudsql_connection_name
+  db_name                  = module.database.cloudsql_db_name
+  db_user                  = module.database.cloudsql_db_user
+  db_pass                  = module.database.cloudsql_db_pass
 }

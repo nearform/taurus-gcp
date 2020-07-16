@@ -19,11 +19,11 @@ resource "google_sql_database_instance" "main" {
   region           = var.cloudsql_region
 
   settings {
-    tier = var.cloudsql_tier
+    tier              = var.cloudsql_tier
     availability_type = var.cloudsql_availability_type
     ip_configuration {
-      ipv4_enabled    = true
-      require_ssl     = true
+      ipv4_enabled = true
+      require_ssl  = true
       dynamic "authorized_networks" {
         for_each = [for an in var.cloudsql_authorized_networks : {
           name  = an.display_name

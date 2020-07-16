@@ -1,7 +1,7 @@
 resource "google_container_cluster" "main" {
-  provider           = google-beta # because of release_channel block
-  name               = var.cluster_name
-  location           = var.location
+  provider = google-beta # because of release_channel block
+  name     = var.cluster_name
+  location = var.location
 
   release_channel {
     channel = "STABLE"
@@ -32,12 +32,12 @@ resource "google_container_cluster" "main" {
   master_authorized_networks_config {
     dynamic "cidr_blocks" {
       for_each = [for an in var.authorized_networks : {
-        display_name  = an.display_name
-        cidr_block    = an.cidr_block
+        display_name = an.display_name
+        cidr_block   = an.cidr_block
       }]
       content {
-        display_name  = cidr_blocks.value.display_name
-        cidr_block    = cidr_blocks.value.cidr_block
+        display_name = cidr_blocks.value.display_name
+        cidr_block   = cidr_blocks.value.cidr_block
       }
     }
   }
@@ -62,7 +62,7 @@ resource "google_container_cluster" "main" {
       disabled = true
     }
     network_policy_config {
-      disabled = !var.network_policy
+      disabled = ! var.network_policy
     }
   }
 

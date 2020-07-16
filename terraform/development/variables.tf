@@ -14,10 +14,6 @@ variable "zone" {
   default = "europe-west1-b"
 }
 
-# variable "dns_managed_zone_name" {
-#   default = "impa"
-# }
-
 variable "web_gke_node_pool" {
   default = {
     name              = "web"
@@ -31,8 +27,8 @@ variable "authorized_networks" {
   type = list
   default = [
     {
-      display_name  = "Petr"
-      cidr_block    = "176.114.240.35/32"
+      display_name = "admin"
+      cidr_block   = "37.48.18.252/32"
     }
   ]
 }

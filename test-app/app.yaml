@@ -11,7 +11,7 @@ spec:
       labels:
         app: test-app
     spec:
-      serviceAccountName: pgtest
+      serviceAccountName: app
       containers:
       - name: test
         image: postgres:alpine
@@ -19,35 +19,42 @@ spec:
         args: [ "while true; do sleep 30; done;" ]
         env:
         - name: PGHOST
-          value: localhost
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: PGPORT
         - name: PGUSER
           valueFrom:
             secretKeyRef:
-              name: db-creds
-              key: username
+              name: db-credentials
+              key: PGUSER
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
-              name: db-creds
-              key: password
+              name: db-credentials
+              key: PGPASSWORD
         - name: PGDATABASE
           valueFrom:
             secretKeyRef:
-              name: db-creds
-              key: database
+              name: db-credentials
+              key: PGDATABASE
       - name: cloud-sql-proxy
         image: gcr.io/cloudsql-docker/gce-proxy:latest
         command:
           - "/cloud_sql_proxy"
-
           # If connecting from a VPC-native GKE cluster, you can use the
           # following flag to have the proxy connect over private IP
           # - "-ip_address_types=PRIVATE"
-
-          # Replace DB_PORT with the port the proxy should listen on
-          # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
-          - "-instances=taurus-279813:europe-west1:test2=tcp:5432"
+        env:
+        - name: INSTANCES
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: CLOUDSQL_PROXY_INSTANCES
         securityContext:
-          # The default Cloud SQL proxy image runs as the
-          # "nonroot" user and group (uid: 65532) by default.
           runAsNonRoot: true

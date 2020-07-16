@@ -11,7 +11,7 @@ resource "google_container_node_pool" "main" {
   location           = var.gke_location
   cluster            = var.gke_cluster_name
   initial_node_count = var.gke_min_node_count
-  
+
   autoscaling {
     min_node_count = var.gke_min_node_count
     max_node_count = var.gke_max_node_count

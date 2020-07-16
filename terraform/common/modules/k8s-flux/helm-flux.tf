@@ -14,8 +14,8 @@ resource "helm_release" "flux" {
   }
 
   set {
-      name = "rbac.create"
-      value = "true"
+    name  = "rbac.create"
+    value = "true"
   }
 }
 
@@ -25,12 +25,12 @@ resource "helm_release" "flux_helm_operator" {
   chart      = "fluxcd/helm-operator"
 
   set {
-      name = "helm.versions"
-      value = "v3"
+    name  = "helm.versions"
+    value = "v3"
   }
 
   set {
-      name = "git.ssh.secretName"
-      value = "flux-git-deploy"
+    name  = "git.ssh.secretName"
+    value = "flux-git-deploy"
   }
 }
