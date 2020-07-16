@@ -6,3 +6,6 @@ variable "location" {}
 variable "network_policy" {
     default = false
 }
+variable "authorized_networks" {
+  type = list
+}

@@ -45,24 +45,21 @@ module "gke" {
   cluster_name         = var.project_name
   location             = var.zone
   network_policy       = true
+  authorized_networks  = var.authorized_networks
 }
 
-# module "database" {
-#   source = "./../common/modules/database"
+module "database" {
+  source = "./../common/modules/database"
 
-#   cloudsql_region            = var.region
-#   cloudsql_db_instance_name  = var.project_name
-#   cloudsql_network_self_link = module.vpc.network_self_link
-#   cloudsql_tier              = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
-#   cloudsql_authorized_networks = [
-#     {
-#       name  = "Petr"
-#       value = "176.114.240.35/32"
-#     }
-#   ]
-#   cloudsql_db_name = "impa"
-#   cloudsql_db_user = "impa"
-# }
+  cloudsql_region              = var.region
+  cloudsql_db_instance_name    = var.project_name
+  cloudsql_tier                = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
+  cloudsql_authorized_networks = var.authorized_networks
+  cloudsql_availability_type   = "ZONAL" # ZONAL | REGIONAL
+
+  cloudsql_db_name = var.project_name
+  cloudsql_db_user = var.project_name
+}
 
 module "web" {
   source = "./../common/modules/web"

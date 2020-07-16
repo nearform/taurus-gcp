@@ -1,0 +1,30 @@
+kubectl create serviceaccount --namespace default pgtest
+
+
+gcloud iam service-accounts add-iam-policy-binding \
+  --role roles/iam.workloadIdentityUser \
+  --member "serviceAccount:taurus-279813.svc.id.goog[default/pgtest]" \
+  pgtest@taurus-279813.iam.gserviceaccount.com
+
+
+
+kubectl annotate serviceaccount \
+  --namespace default \
+  pgtest \
+  iam.gke.io/gcp-service-account=pgtest@taurus-279813.iam.gserviceaccount.com
+
+
+
+
+kubectl run -it \
+  --image google/cloud-sdk:slim \
+  --serviceaccount test \
+  --namespace default \
+  workload-identity-test
+
+
+
+kubectl create secret generic db-creds \
+  --from-literal=username=postgres \
+  --from-literal=password=test \
+  --from-literal=database=postgres

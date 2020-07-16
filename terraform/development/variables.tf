@@ -26,3 +26,13 @@ variable "web_gke_node_pool" {
     node_machine_type = "n1-standard-1" # https://cloud.google.com/compute/docs/machine-types
   }
 }
+
+variable "authorized_networks" {
+  type = list
+  default = [
+    {
+      display_name  = "Petr"
+      cidr_block    = "176.114.240.35/32"
+    }
+  ]
+}

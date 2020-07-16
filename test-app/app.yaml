@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app
+spec:
+  selector:
+    matchLabels:
+      app: test-app
+  template:
+    metadata:
+      labels:
+        app: test-app
+    spec:
+      serviceAccountName: pgtest
+      containers:
+      - name: test
+        image: postgres:alpine
+        command: [ "/bin/sh", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        env:
+        - name: PGHOST
+          value: localhost
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: db-creds
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-creds
+              key: password
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: db-creds
+              key: database
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:latest
+        command:
+          - "/cloud_sql_proxy"
+
+          # If connecting from a VPC-native GKE cluster, you can use the
+          # following flag to have the proxy connect over private IP
+          # - "-ip_address_types=PRIVATE"
+
+          # Replace DB_PORT with the port the proxy should listen on
+          # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
+          - "-instances=taurus-279813:europe-west1:test2=tcp:5432"
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true
