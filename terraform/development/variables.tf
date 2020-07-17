@@ -28,7 +28,7 @@ variable "authorized_networks" {
   default = [
     {
       display_name = "admin"
-      cidr_block   = "37.48.18.252/32"
+      cidr_block   = "176.114.240.35/32"
     }
   ]
 }

@@ -54,6 +54,7 @@ module "database" {
 
   cloudsql_region              = var.region
   cloudsql_db_instance_name    = var.project_name
+  cloudsql_network_self_link   = module.vpc.network_self_link
   cloudsql_tier                = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
   cloudsql_authorized_networks = var.authorized_networks
   cloudsql_availability_type   = "ZONAL" # ZONAL | REGIONAL
