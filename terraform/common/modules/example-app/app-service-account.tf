@@ -25,7 +25,7 @@ resource "google_service_account_iam_binding" "app" {
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "serviceAccount:${var.project_id}.svc.id.goog[default/${kubernetes_service_account.app.metadata[0].name}]",
+    "serviceAccount:${var.project_id}.svc.id.goog[${kubernetes_service_account.app.metadata[0].namespace}/${kubernetes_service_account.app.metadata[0].name}]",
   ]
 }
 

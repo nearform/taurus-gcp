@@ -1,3 +1,15 @@
+variable "project_id" {}
+variable "network_self_link" {}
+variable "subnetwork_self_link" {}
+variable "cluster_name" {}
+variable "location" {}
+variable "network_policy" {
+  default = false
+}
+variable "authorized_networks" {
+  type = list
+}
+
 resource "google_container_cluster" "main" {
   provider = google-beta # because of release_channel block
   name     = var.cluster_name
@@ -69,4 +81,18 @@ resource "google_container_cluster" "main" {
   workload_identity_config {
     identity_namespace = "${var.project_id}.svc.id.goog"
   }
+}
+
+output "cluster_name" {
+  value = "${google_container_cluster.main.name}"
+}
+
+output "cluster_host" {
+  value = "https://${google_container_cluster.main.endpoint}"
+}
+
+output "cluster_ca_certificate" {
+  value = base64decode(
+    google_container_cluster.main.master_auth[0].cluster_ca_certificate,
+  )
 }

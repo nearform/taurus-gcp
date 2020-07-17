@@ -20,6 +20,25 @@ provider "google-beta" {
   zone        = var.zone
 }
 
+data "google_client_config" "current" {}
+
+# Helm provider can be delated if K8s addons are managed outside of Terraform
+provider "helm" {
+  kubernetes {
+    load_config_file       = false
+    host                   = module.gke.cluster_host
+    token                  = data.google_client_config.current.access_token
+    cluster_ca_certificate = module.gke.cluster_ca_certificate
+  }
+}
+
+provider "kubernetes" {
+  load_config_file       = false
+  host                   = module.gke.cluster_host
+  token                  = data.google_client_config.current.access_token
+  cluster_ca_certificate = module.gke.cluster_ca_certificate
+}
+
 # DNS Managed Zone
 
 resource "google_dns_managed_zone" "main" {

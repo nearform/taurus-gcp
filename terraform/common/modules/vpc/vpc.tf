@@ -1,3 +1,7 @@
+variable "network_name" {}
+variable "subnetwork_name" {}
+variable "region" {}
+
 resource "google_compute_network" "main" {
   name                    = var.network_name
   auto_create_subnetworks = false
@@ -30,4 +34,12 @@ resource "google_compute_firewall" "egress" {
   }
 
   destination_ranges = ["0.0.0.0/0"]
+}
+
+output "network_self_link" {
+  value = google_compute_network.main.self_link
+}
+
+output "subnetwork_self_link" {
+  value = google_compute_subnetwork.main.self_link
 }

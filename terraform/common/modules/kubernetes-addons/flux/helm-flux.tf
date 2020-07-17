@@ -1,8 +1,11 @@
+variable "config_repository" {} # git@github.com:[ORGANIZATION]/[REPOSITORY].git
+
 data "helm_repository" "fluxcd" {
   name = "fluxcd"
   url  = "https://charts.fluxcd.io"
 }
 
+# DOCS: https://github.com/fluxcd/flux/tree/master/chart/flux
 resource "helm_release" "flux" {
   name       = "flux"
   repository = data.helm_repository.fluxcd.metadata[0].name
@@ -10,7 +13,7 @@ resource "helm_release" "flux" {
 
   set {
     name  = "git.url"
-    value = "git@github.com:petrkohut/flux-get-started.git"
+    value = var.config_repository
   }
 
   set {
@@ -19,6 +22,10 @@ resource "helm_release" "flux" {
   }
 }
 
+# DOCS: https://github.com/fluxcd/helm-operator/tree/master/chart/helm-operator
+# IMPORTANT: Install the HelmRelease Custom Resource Definition via:
+# kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/{{ version }}/deploy/crds.yaml
+# or as K8s yaml manifest in flux config repository.
 resource "helm_release" "flux_helm_operator" {
   name       = "flux-helm-operator"
   repository = data.helm_repository.fluxcd.metadata[0].name
