@@ -1,5 +1,3 @@
-variable "project_id" {}
-
 resource "random_string" "app" {
   length      = 6
   min_numeric = 6
