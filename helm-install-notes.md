@@ -32,7 +32,9 @@ helm repo update
 helm install flux fluxcd/flux \
   --set rbac.create=true \
   --set git.url="git@github.com:nearform/taurus-gcp.git" \
-  --set git.readonly=true
+  --set git.readonly=true \
+  --set git.path="flux" \
+  --set registry.disableScanning=true
 ```
 
 # Flux Helm Operator
