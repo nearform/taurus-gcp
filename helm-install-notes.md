@@ -29,7 +29,8 @@ helm repo add fluxcd https://charts.fluxcd.io
 helm repo update
 helm install flux fluxcd/flux \
   --set rbac.create=true \
-  --set git.url="git@github.com:nearform/taurus-gcp.git" # set the config repository
+  --set git.url="git@github.com:nearform/taurus-gcp.git" \
+  --set git.readonly=true
 ```
 
 # Flux Helm Operator

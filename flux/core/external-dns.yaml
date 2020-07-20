@@ -1,0 +1,15 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: helm-external-dns
+  namespace: default
+spec:
+  releaseName: external-dns
+  targetNamespace: default
+  chart:
+    repository: https://charts.bitnami.com/bitnami/
+    name: external-dns
+  values:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: "external-dns-684528@taurus-279813.iam.gserviceaccount.com"
