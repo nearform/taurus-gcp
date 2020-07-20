@@ -94,9 +94,6 @@ module "example_app" {
   gke_max_node_count    = var.web_gke_node_pool.max_node_count
   gke_node_machine_type = var.web_gke_node_pool.node_machine_type
 
-  # google_dns_managed_zone_name     = google_dns_managed_zone.main.name
-  # google_dns_managed_zone_dns_name = google_dns_managed_zone.main.dns_name
-
   cloudsql_connection_name = module.database.cloudsql_connection_name
   db_name                  = module.database.cloudsql_db_name
   db_user                  = module.database.cloudsql_db_user

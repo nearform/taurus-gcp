@@ -1,0 +1,12 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: helm-nginx-ingress
+  namespace: default
+spec:
+  releaseName: nginx-ingress
+  targetNamespace: default
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    name: nginx-ingress
+    version: 1.40.1
