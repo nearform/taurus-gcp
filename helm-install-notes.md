@@ -28,18 +28,23 @@ helm install cert-manager jetstack/cert-manager \
 ```
 
 # Flux
+Docs: https://github.com/fluxcd/flux/tree/master/chart/flux
+
 ```sh
 helm repo add fluxcd https://charts.fluxcd.io
 helm repo update
 helm install flux fluxcd/flux \
   --set rbac.create=true \
   --set git.url="git@github.com:nearform/taurus-gcp.git" \
+  --set git.secretName="flux-git-deploy" \
   --set git.readonly=true \
   --set git.path="flux" \
   --set registry.disableScanning=true
 ```
 
 # Flux Helm Operator
+Docs: https://github.com/fluxcd/helm-operator/tree/master/chart/helm-operator
+
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/1.1.0/deploy/crds.yaml
 helm install flux-helm-operator fluxcd/helm-operator \
