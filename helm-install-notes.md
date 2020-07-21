@@ -19,10 +19,12 @@ kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
+# Kubernetes <1.15
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.0-alpha.1/cert-manager-legacy.crds.yaml
+
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v0.15.1 \
-  --set installCRDs=true
+  --version v0.15.1
 ```
 
 # Flux
