@@ -31,13 +31,13 @@ jobs:
         run: |
           docker build \
             -t $DOCKER_IMAGE:$DOCKER_IMAGE_TAG \
-            -f app/docker/backend/Dockerfile \
+            -f app/backend/docker/Dockerfile \
             app/backend
       - name: docker push
         run: |
           docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
       - name: helm upgrade
-        working-directory: ./app/helm/backend
+        working-directory: ./app/backend/helm
         run: |
           helm upgrade \
             --install backend \
