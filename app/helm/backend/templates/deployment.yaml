@@ -44,7 +44,7 @@ spec:
             - configMapRef:
                 name: {{ include "backend.fullname" . }}
             - secretRef:
-                name: db-credentials # secret is created by Terraform
+                name: db-credentials # secret managed by Terraform
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: cloud-sql-proxy
