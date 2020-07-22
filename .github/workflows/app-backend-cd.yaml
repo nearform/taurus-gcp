@@ -1,0 +1,47 @@
+name: Backend CD Dev
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/app-backend-cd.yml'
+      - 'app/backend/**'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '281.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - name: gcloud auth configure-docker
+        run: |
+          gcloud auth configure-docker
+      - name: get kubeconfig
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.GCP_CLUSTER_NAME }} --zone europe-west1-b --project ${{ secrets.GCP_PROJECT_NAME }}
+      - name: prepare docker image name
+        run: |
+          echo "::set-env name=DOCKER_IMAGE::eu.gcr.io/${{ secrets.GCP_PROJECT_NAME }}/backend"
+          echo "::set-env name=DOCKER_IMAGE_TAG::$GITHUB_SHA"
+      - name: docker build
+        run: |
+          docker build \
+            -t $DOCKER_IMAGE:$DOCKER_IMAGE_TAG \
+            -f app/docker/backend/Dockerfile \
+            app/backend
+      - name: docker push
+        run: |
+          docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
+      - name: helm upgrade
+        working-directory: ./app/helm/backend
+        run: |
+          helm upgrade \
+            --install backend \
+            --values values.yaml \
+            --set image.repository=$DOCKER_IMAGE \
+            --set image.tag=$DOCKER_IMAGE_TAG \
+            .
