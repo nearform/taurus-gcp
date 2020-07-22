@@ -8,6 +8,7 @@ variable "network_policy" {
 }
 variable "authorized_networks" {
   type = list
+  default = []
 }
 
 resource "google_container_cluster" "main" {
@@ -41,15 +42,18 @@ resource "google_container_cluster" "main" {
     }
   }
 
-  master_authorized_networks_config {
-    dynamic "cidr_blocks" {
-      for_each = [for an in var.authorized_networks : {
-        display_name = an.display_name
-        cidr_block   = an.cidr_block
-      }]
-      content {
-        display_name = cidr_blocks.value.display_name
-        cidr_block   = cidr_blocks.value.cidr_block
+  dynamic "master_authorized_networks_config" {
+    for_each = length(var.authorized_networks) > 0 ? [1] : []
+    content {
+      dynamic "cidr_blocks" {
+        for_each = [for an in var.authorized_networks : {
+          display_name = an.display_name
+          cidr_block   = an.cidr_block
+        }]
+        content {
+          display_name = cidr_blocks.value.display_name
+          cidr_block   = cidr_blocks.value.cidr_block
+        }
       }
     }
   }
@@ -64,9 +68,12 @@ resource "google_container_cluster" "main" {
   }
 
 
-  network_policy {
-    enabled  = var.network_policy
-    provider = "CALICO"
+  dynamic "network_policy" {
+    for_each = var.network_policy == true ? [1] : []
+    content {
+      enabled  = var.network_policy
+      provider = "CALICO"
+    }
   }
 
   addons_config {

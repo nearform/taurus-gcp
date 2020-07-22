@@ -54,8 +54,8 @@ module "gke" {
   subnetwork_self_link = module.vpc.subnetwork_self_link
   cluster_name         = var.project_name
   location             = var.zone # var.zone | var.region
-  network_policy       = true
-  authorized_networks  = var.authorized_networks
+  network_policy       = false
+  # authorized_networks  = var.authorized_networks # Uncomment when want restrict access to K8s API
 }
 
 module "database" {
