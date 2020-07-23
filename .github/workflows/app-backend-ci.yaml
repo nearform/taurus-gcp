@@ -1,0 +1,34 @@
+
+name: Backend CI
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/app-backend-ci.yml'
+    - 'app/backend/**'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Checking out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm ci
+        working-directory: ./app/backend
+        run: |
+          npm ci
+      - name: npm run lint
+        working-directory: ./app/backend
+        run: |
+          npm run lint
+      - name: npm test
+        working-directory: ./app/backend
+        run: |
+          npm run test
