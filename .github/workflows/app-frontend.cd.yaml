@@ -1,4 +1,4 @@
-name: Frontend CD Dev
+name: Frontend CD
 on:
   push:
     branches:
