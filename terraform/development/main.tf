@@ -79,10 +79,10 @@ module "example_app" {
 
   gke_cluster_name      = module.gke.cluster_name
   gke_location          = var.zone
-  gke_node_pool_name    = var.web_gke_node_pool.name
-  gke_min_node_count    = var.web_gke_node_pool.min_node_count
-  gke_max_node_count    = var.web_gke_node_pool.max_node_count
-  gke_node_machine_type = var.web_gke_node_pool.node_machine_type
+  gke_node_pool_name    = var.app_gke_node_pool.name
+  gke_min_node_count    = var.app_gke_node_pool.min_node_count
+  gke_max_node_count    = var.app_gke_node_pool.max_node_count
+  gke_node_machine_type = var.app_gke_node_pool.node_machine_type
 
   cloudsql_connection_name = module.database.cloudsql_connection_name
   db_name                  = module.database.cloudsql_db_name
