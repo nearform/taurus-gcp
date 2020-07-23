@@ -4,7 +4,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/app-frontend-cd.yml'
+      - '.github/workflows/app-frontend-cd.yaml'
       - 'app/frontend/**'
 jobs:
   release:
@@ -37,10 +37,11 @@ jobs:
         run: |
           docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
       - name: helm upgrade
+        working-directory: ./app/frontend/helm
         run: |
           helm upgrade \
-            --install backend \
+            --install frontend \
             --values values.yaml \
             --set image.repository=$DOCKER_IMAGE \
             --set image.tag=$DOCKER_IMAGE_TAG \
-            app/frontend/helm
+            .
