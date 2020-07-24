@@ -35,13 +35,13 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: app.taurus-example.com
+    - host: api.taurus-example.com
       paths:
         - "/"
   tls: []
   #  - secretName: backend-tls
   #    hosts:
-  #      - app.taurus-example.com
+  #      - api.taurus-example.com
 
 resources: {}
 
