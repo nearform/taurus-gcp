@@ -16,7 +16,7 @@ Fig.1 Taurus High-Level Architecture
 Taurus provides you with the following capabilities:
 - Provision GCP Services
 - Install Kubernetes add-ons
-- Example Application with CI/CD via Github Actions
+- Example Application with CI/CD
 
 ## GCP Provisioning
 Taurus focuses on the main infrastructure components and we expect you will extend it. That's why it's called a boilerplate.
