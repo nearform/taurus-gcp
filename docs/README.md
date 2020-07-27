@@ -18,6 +18,13 @@ Taurus provides you with the following capabilities:
 - Install Kubernetes add-ons
 - Example Application with CI/CD
 
+## Security
+Taurus follows all best practices to keep security on highest level by using:
+- Workload identity (allowing to bind GCP service accounts to Kubernetes service accounts without managing credentials)
+- CloudSQL Proxy to securely access Database from an application over encrypted tunnel
+- Allowing access to Kubernetes cluster only to whitelisted IPs
+- Securely managing Kubernetes addons using Gitops approach with Flux
+
 ## GCP Provisioning
 Taurus focuses on the main infrastructure components and we expect you will extend it. That's why it's called a boilerplate.
 
