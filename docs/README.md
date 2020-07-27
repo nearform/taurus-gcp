@@ -25,6 +25,7 @@ The main Taurus components are:
 - Networking (VPC)
 - Kubernetes (GKE, IAM with Workload Identity, add-ons)
 - Database (CloudSQL (Postgres))
+- DNS Hosted zone
 - Example application (Frontend and Backend with secure connection to DB over a proxy)
 
 ## Kubernetes Add-Ons

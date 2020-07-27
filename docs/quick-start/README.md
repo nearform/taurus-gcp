@@ -1,23 +1,17 @@
 # Taurus Quick Start Guide
 
 This section describes how to get started with Taurus. It outlines the following:
- - Taurus dependencies you need to install. 
- - How to clone the Taurus repository. 
- - AWS prerequisites you require.
- - Details on how to provision Terraform.
+ - Taurus dependencies you need to install
+ - How to clone the Taurus repository
+ - GCP prerequisites you require
+ - Details of Terraform and how to provision
 
 ## Install Dependencies
 Install the following Taurus dependencies using the instructions in each provided link:
-
-1. [AWS][aws-cli-install] CLI
-1. [aws-iam-authenticator][aws-iam-authenticator-install]
-1. [kubectl][kubectl-install]
-1. [Helm][helm-install] 
-    
-    After installing Helm, run the command: 
-    
-    `helm init --client-only`
-1. [Terraform][terraform-install]. Use version 0.12.8 or higher.
+- [Google Cloud SDK][gc-sdk-install]
+- [kubectl][kubectl-install]
+- [Helm 3][helm-install] 
+- [Terraform][terraform-install] (use version 0.12.29 or higher)
 
 ## Clone the Source Repository
 To start, fork [Taurus] on GitHub. It is easier to maintain your own fork as Taurus is designed to diverge. It is unlikely you will need to pull from the source repository again.
@@ -28,102 +22,110 @@ Once you have your fork, clone a copy of it locally:
 git clone https://github.com/<your-fork>/taurus.git
 ```
 
-## AWS Prerequisites
+## GCP Prerequisites
+To provision Taurus on a GCP project it is expected from a user to:
+- Create a Service account dedicated to Terraform with `Project Owner` IAM role
+- Enable APIs on a bunch of GCP services listed below
+- Create a Storage bucket dedicated to Terraform state file
 
-Amazon Web Services(AWS) requires:
-- A Terraform IAM user with access keys and an AWS profile.
-- A Terraform S3 bucket.
+### Create a GCP Service account
+In an environment folder in `/terraform/development` Terraform expects to find `key.json` service account credentials file with Project Owner permissions. You can easily create it in `IAM & Admin -> Service Accounts` section in your GCP project.
 
-This section describes how to create both of these.
+`key.json` file has to be manually downloaded from the service account detail section on `IAM & Admin` and moved to appropriate folder like below:
+```
+/terraform
+    /common
+    /development
+        /key.json <- credentials from development GCP project
+    ...
+```
+**Note:** The `key.json` file is in `.gitignore` to prevent accidental commit.
 
-### Create a Terraform IAM User
-1. Create an access key for a user with right permissions for provisioning this list of components:
-    * VPC (with subnets and so on)
-    * EKS cluster
-    * RDS (PostgreSQL DB)
-    * S3 bucket to serve static content
-    * CloudFront Content Delivery Network (CDN) for the S3 bucket
+### Enable APIs of GCP Services
+Taurus uses multiple GCP services and for all of them Terraform expects their APIs to be enabled.
 
-1. Create an AWS profile that uses the access key created in the previous step by running command:
-    ```sh
-    $ aws configure --profile taurus
-    ```
-  
-    The output guides you through the profile setup as follows:
-    ```sh
-    AWS Access Key ID [None]: AK*********E
-    AWS Secret Access Key [None]: je7M***************EY
-    Default region name [None]: eu-west-1
-    Default output format [None]: text
-    ```
+For provisioning Taurus on fresh new GCP project we need to make sure the service APIs listed below are enabled:
+```
+gcloud auth login
+gcloud config set project <GCP_PROJECT_ID>
 
-1. Set the AWS CLI to use the taurus AWS profile using the `AWS_PROFILE` environment variable as follows:
-    ```sh
-    export AWS_PROFILE=taurus
-    ```
-
-### Create a Terraform State S3 Bucket
-1. Create a S3 Bucket using the following command:
-    ```sh
-    aws s3api create-bucket \
-    --bucket taurus-terraform-state \
-    --region eu-west-1 \
-    --create-bucket-configuration LocationConstraint=eu-west-1
-    ```
-1. Enable versioning on the bucket using the following command:
-    ```sh
-    aws s3api put-bucket-versioning \
-    --bucket taurus-terraform-state \
-    --versioning-configuration Status=Enabled
-    ```
-
-## Provision Terraform
-1. Rename and and edit the Terraform backend storage configuration file from `backend.tfvars.sample` to `backend.tfvars`.
-1. Rename and edit the Terraform project configuration file from  `config.tfvars.sample` to `development.tfvars`.
-1. Initialise Terraform using the command:
-    ```sh
-    terraform init -backend-config=backend.tfvars
-    ```
-1. Create and switch to the right workspace (environment):
-    ```sh
-    terraform workspace new development
-    ```
-1. Provision the infrastructure:
-    ```sh
-    terraform apply -var-file="development.tfvars"
-    ```
-1. When the Kubernetes cluster exists, fetch and update the `~/.kube/config` file.
-    ```sh
-    aws eks update-kubeconfig --name <eks_cluster_name>
-    ```
-1. Install Kubernetes add-ons.
-See the [Install Kubernetes Add-Ons] section of this document for more details. 
-
-## Create Users with Access to Kubernetes
-Only the AWS IAM user who provisioned the stack has access to the Kubernetes cluster.
-
-To add a new user, use the `eks_map_users` optional variable in the Kubernetes Terraform module. For example:
-
-```hcl
-eks_map_users = [
-  {
-    user_arn = "arn:aws:iam::506174623202:user/petr"
-    username = "petr"
-    group    = "system:masters"
-  }
-]
+gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable compute.googleapis.com
+gcloud services enable container.googleapis.com
+gcloud services enable containerregistry.googleapis.com
+gcloud services enable dns.googleapis.com
+gcloud services enable iam.googleapis.com
+gcloud services enable iamcredentials.googleapis.com
+gcloud services enable logging.googleapis.com
+gcloud services enable monitoring.googleapis.com
+gcloud services enable pubsub.googleapis.com
+gcloud services enable servicemanagement.googleapis.com
+gcloud services enable servicenetworking.googleapis.com
+gcloud services enable sourcerepo.googleapis.com
+gcloud services enable sql-component.googleapis.com
+gcloud services enable sqladmin.googleapis.com
+gcloud services enable storage-api.googleapis.com
+gcloud services enable storage-component.googleapis.com
+gcloud services enable secretmanager.googleapis.com
 ```
 
-For more information on adding users, refer to [Managing Users or IAM Roles for your Cluster].
+### Terraform state file
+To keep Terraform state on safe and remote place and also allow multiple people work with the Terraform project we use GCP Cloud Storage Bucket as a Terraform state storage backend.
+
+On GCP project we manually create a bucket with enabled versioning:
+```sh
+export GCP_PROJECT_ID="" # point to your GCP project id
+export TAURUS_TF_STATE_BUCKET="" # globally unique name of a bucket (example: mycompany-projectname-dev-terraform-state)
+export TAURUS_TF_STATE_BUCKET_REGION="europe-west1" # change in needed
+
+gsutil mb -p $GCP_PROJECT_ID -l $TAURUS_TF_STATE_BUCKET_REGION gs://$TAURUS_TF_STATE_BUCKET
+
+gsutil versioning set on gs://$TAURUS_TF_STATE_BUCKET
+```
+
+## Terraform
+
+### Terraform folder structure
+The Taurus boilerplate setup expects that each environment has its own Terraform project (folder):
+```
+/terraform
+    /common    <- common IaC templates used by all environments
+    /development <- development environment
+```
+All GCP project/environment specifics live in a environment folder, rest is in `/common`.
+
+**Note:** Each project has usually a different environments setup so feel free to adjust it to your project's needs.
+
+### Common Terraform modules
+There are two types of modules:
+- core GCP services modules
+  - `vpc` - network
+  - `gke` - GKE master
+  - `database` - Cloud SQL PostgreSQL
+- App modules
+  - `example-app` - all related to the example application
+
+### Provisioning
+1. Edit the Terraform backend storage configuration file in `/terraform/development/main.tf`
+2. Adjust project configuration file in  `/terraform/development/variables.tf`
+3. Initialise Terraform using the command:
+    ```sh
+    terraform init
+    ```
+4. Provision the infrastructure:
+    ```sh
+    terraform apply
+    ```
+5. Once the Kubernetes cluster is created, fetch and update the `~/.kube/config` file by going to Kubernetes cluster detail on GCP web console and copy paste and run the command provided in `Connect` section
+6. Install Kubernetes add-ons by following more detailed section [Install Kubernetes Add-Ons].
 
 <!-- Internal Links -->
-[Install Kubernetes Add-Ons]:/helm/
+[Install Kubernetes Add-Ons]: /helm/
 
 <!-- External Links -->
-[aws-cli-install]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
-[aws-iam-authenticator-install]: https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
+[gc-sdk-install]: https://cloud.google.com/sdk/install
 [kubectl-install]: https://kubernetes.io/docs/tasks/tools/install-kubectl
-[helm-install]: https://github.com/helm/helm/releases/tag/v2.9.0
+[helm-install]: https://github.com/helm/helm/releases/tag/v3.2.4
 [terraform-install]: https://www.terraform.io/downloads.html
-[Managing Users or IAM Roles for your Cluster]: https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html
 [Taurus]: https://github.com/nearform/taurus
