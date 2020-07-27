@@ -33,3 +33,7 @@ resource "google_service_account_iam_binding" "external_dns" {
     "serviceAccount:${var.project_id}.svc.id.goog[${var.external_dns_k8s_sa_namespace}/${var.external_dns_k8s_sa_name}]",
   ]
 }
+
+output "external_dns_service_account_email" {
+  value = google_service_account.external_dns.email
+}

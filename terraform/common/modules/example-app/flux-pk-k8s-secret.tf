@@ -1,5 +1,5 @@
 resource "tls_private_key" "flux" {
-  algorithm   = "RSA"
+  algorithm = "RSA"
 }
 
 resource "kubernetes_secret" "flux_git_deploy" {
@@ -22,5 +22,5 @@ resource "kubernetes_secret" "flux_git_deploy" {
 }
 
 output "flux_public_key" {
-    value = tls_private_key.flux.public_key_openssh
+  value = tls_private_key.flux.public_key_openssh
 }
