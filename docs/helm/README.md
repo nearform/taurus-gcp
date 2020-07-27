@@ -1,121 +1,112 @@
 # Install Kubernetes Add-Ons 
+There are two ways how to install Kubernetes addons:
+- manually from our laptop
+- automatically by Flux operator (Gitops approach)
+- by other Gitops operaptor like ArgoCD (not provided by Taurus)
 
-Use Helm to install Kubernetes add-ons. Helm, the package manager for Kubernetes, is a useful tool to install, upgrade and manage applications on a Kubernetes cluster. Helm packages are called charts. 
+## Manual installation
+For installation Kubernetes addons manually we need to have Helm 3 installed.
 
-Helm consists of a client (helm) and a server (Tiller). Tiller runs inside your Kubernetes cluster as a pod in the kube-system namespace. Tiller manages both the releases (installations) and revisions (versions) of charts deployed on the cluster. When you run Helm commands, your local Helm client sends instructions to the Tiller in the cluster that then makes the requested changes.
-
-## Configure Helm 
-
-### 1. Configure Helm Tiller Role-Based Access Control(RBAC)
-To create a new Helm service account (tiller) and limit Tiller access to the Tiller namespace (kube-system) within the cluster, you need to configure Tiller RBAC.
-
-Edit the file `helm/helm-rbac.yaml` so that it contains the following configuration:
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tiller
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: tiller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: tiller
-    namespace: kube-system
-```
-Apply the configuration using the following command:
+### Nginx Ingress
 ```sh
-kubectl apply -f helm/helm-rbac.yaml
+helm install nginx-ingress stable/nginx-ingress \
+  --set controller.scope.enabled=true \
+  --set controller.scope.namespace="default"
+```
+Notice we set nginx ingress to follow ingress resources in `default` namespace only. Feel free to omit the settings if you want it to follow ingress resources in all namespaces.
+
+Other Helm chart options can be found here: https://github.com/helm/charts/tree/master/stable/nginx-ingress
+
+### ExternalDNS
+First we need to add bitnami Helm repository:
+```sh
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+```
+Grab the `external_dns_service_account` output variable available when running `terraform output` command and assign it an environment variable:
+```sh
+export EXTERNAL_DNS_SA="<SOMETHING>@<GCP_PROJECT>.iam.gserviceaccount.com"
+```
+Now install external-dns:
+```sh
+helm install external-dns bitnami/external-dns \
+  --set provider=google \
+  --set serviceAccount.annotations."iam\.gke\.io\/gcp-service-account"=$EXTERNAL_DNS_SA
 ```
 
-### 2. Install Tiller
+Other Helm chart options can be found here: https://github.com/bitnami/charts/tree/master/bitnami/external-dns
 
-Install Tiller to manage the cluster Helm charts using the command:
+### Cert-Manager
+First we need to add jetstack Helm repository:
 ```sh
-helm init --service-account tiller --tiller-namespace kube-system
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
 ```
-
-You can verify that you have the correct version and that it installed properly using the command: 
+Then we create a Kubernetes namespace dedicated to cert-manager:
 ```sh
-helm version
+kubectl create namespace cert-manager
 ```
-
-## Install kube2iam
-Install kube2iam using the following command:
+We install Kubernetes Custom Resource Definitions:
 ```sh
-helm upgrade --install "kube2iam" "stable/kube2iam" --version "2.0.1" --namespace "kube-system" \
---set rbac.create="true" \
---set host.interface="eni+" \
---set host.iptables="true"
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.0-alpha.1/cert-manager-legacy.crds.yaml
 ```
-
-## Install Fluentd CloudWatch
-Add the Helm incubator charts repository for your local client using the following command:
+And finally we install the cert-manager:
 ```sh
-helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-```
-Install FluentD CloudWatch to the namespace 'kube-system' using the following command:
-```sh
-helm upgrade --install "fluentd-cloudwatch" "incubator/fluentd-cloudwatch" --version "0.10.2" --namespace "kube-system" \
---set rbac.create="true" \
---set awsRegion="eu-west-1" \
---set awsRole="${FLUENTD_CLOUDWATCH_IAM_ROLE_ARN}" \
---set logGroupName="taurus" \
---set extraVars[0]="\{ name: FLUENT_UID\, value: '0' \}"
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --version v0.15.1
 ```
 
-## Install Metrics Server
-Use the following command to install metrics server:
+Other Helm chart options can be found here: https://github.com/jetstack/cert-manager
+
+## Flux
+*Flux is a tool that automatically ensures that the state of your Kubernetes cluster matches the configuration you’ve supplied in Git. It uses an operator in the cluster to trigger deployments inside Kubernetes, which means that you don’t need a separate continuous delivery tool.* - [Official documentation](https://fluxcd.io)
+
+Installation Kubernetes addons via Flux compared to manual installation gives us an automation of provisioning in the most secure way. In such case Kubernetes API can be closed to the internet and we still be able to manage our addons.
+
+Taurus has precreated a folder called `/flux` which serves as a config repository to Flux operator and has configuration for all Taurus Kubernetes addons.
+
+Before we install Flux we must configure the external-dns GCP service account in annotations in `/flux/core/external-dns.yaml` to the `external_dns_service_account` output variable available when running `terraform output` command.
+
+### Install Flux
+First we need to add fluxcd Helm repository:
 ```sh
-helm upgrade --install "metrics-server" "stable/metrics-server" --version "2.8.5" --namespace "kube-system" \
---set replicas="2"
+helm repo add fluxcd https://charts.fluxcd.io
+helm repo update
+```
+Now we install flux:
+```sh
+helm install flux fluxcd/flux \
+  --set rbac.create=true \
+  --set git.url="git@github.com:nearform/taurus-gcp.git" \
+  --set git.secretName="flux-git-deploy" \
+  --set git.readonly=true \
+  --set git.path="flux" \
+  --set registry.disableScanning=true
+```
+`git.url` and `git.path` parameters set the config repository and path to a directory with Kubernetes addons manifests. Change them if you plan to use a different config repository or path.
+
+`git.secretName` point to a Kubernetes secret already created by Terraform containing SSH private key enabling access to your config repository.
+
+Other Helm chart options can be found here: https://github.com/fluxcd/flux/tree/master/chart/flux
+
+### Install Flux Helm Operator
+Flux Helm Operator expands Flux abilities by provision Helm charts.
+
+First we install Kubernetes Custom Resource Definitions:
+```sh
+kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/1.1.0/deploy/crds.yaml
+```
+No we install helm operator:
+```sh
+helm install flux-helm-operator fluxcd/helm-operator \
+  --set helm.versions="v3" \
+  --set git.ssh.secretName="flux-git-deploy"
 ```
 
-## Install Cluster Autoscaler
-Use the following command to install and configure the cluster autoscaler:
+Other Helm chart options can be found here: https://github.com/fluxcd/helm-operator/tree/master/chart/helm-operator
 
-```sh
-helm upgrade --install "cluster-autoscaler" "stable/cluster-autoscaler" --version "3.2.0" --namespace "kube-system" \
---set rbac.create="true" \
---set replicaCount="2" \
---set sslCertPath="/etc/ssl/certs/ca-bundle.crt" \
---set cloudProvider="aws" \
---set autoDiscovery.enabled="true" \
---set autoDiscovery.clusterName="${EKS_CLUSTER_NAME}" \
---set awsRegion="eu-west-1" \
---set podAnnotations.iam\\.amazonaws\\.com/role="${CLUSTER_AUTOSCALER_IAM_ROLE_ARN}"
-```
-
-## Install Application Load Balancer
-The Application Load Balancer (ALB) is alb-ingress-controller. Use the following command to add to the repository:
-```sh
-helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-```
-Install and configure the ALB using the command:
-```sh
-helm upgrade --install "aws-alb-ingress-controller" "incubator/aws-alb-ingress-controller" --version "0.1.10" --namespace "kube-system" \
---set clusterName="${EKS_CLUSTER_NAME}" \
---set autoDiscoverAwsRegion="true" \
---set autoDiscoverAwsVpcID="true" \
---set podAnnotations.iam\\.amazonaws\\.com/role="${ALB_INGRESS_CONTROLLER_IAM_ROLE_ARN}"
-```
-
-## Install ExternalDNS
-Use the following command to install and configure ExternalDNS:
-```sh
-helm upgrade --install "external-dns" "stable/external-dns" --version "2.6.1" --namespace "kube-system" \
---set rbac.create="true" \
---set replicas="2" \
---set aws.region="eu-west-1" \
---set aws.zoneType="public" \
---set registry="noop" \
---set podAnnotations.iam\\.amazonaws\\.com/role="${EXTERNAL_DNS_IAM_ROLE_ARN}"
-```
+### Github Deploy key setup
+Now with flux operator installed we need to grant it an access to our config repository by adding a RSA public key to a Deploy keys in the repository settings.
+1. Navigate to your clone of Taurus Github repository `Settings -> Deploy keys` and create a new key called `flux` with value set to a `flux_public_key` output variable available when running `terraform output` command. You can leave `Allow write access` unchecked.
+2. Now flux operator starts watching our repository and installs all our Kubernetes addons. It will also check the repository every minute and propagate any observed change we make there.
