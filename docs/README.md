@@ -22,18 +22,17 @@ Taurus provides you with the following capabilities:
 Taurus is designed to follow all security best practices in all of its components:
 - [Workload Identity] (allows to bind GCP service accounts to Kubernetes service accounts without a need to manage credentials)
 - [CloudSQL Proxy] to securely access Database from an application over encrypted tunnel
-- Allowing access to Kubernetes cluster only to whitelisted IPs by using [GKE Authorized Networks]
-- Securely managing Kubernetes addons using Gitops approach with [Flux]
+- [GKE Authorized Networks] allowing access to Kubernetes cluster only to whitelisted IPs
+- [Flux] to securely manage Kubernetes addons using Gitops approach
 
 ## GCP Provisioning
 Taurus focuses on the main infrastructure components and we expect you will extend it. That's why it's called a boilerplate.
 
-The main Taurus components are:
+The main GCP components are:
 - Networking (VPC)
 - Kubernetes (GKE, IAM with Workload Identity, add-ons)
-- Database (CloudSQL (Postgres))
+- Database (CloudSQL (Postgres) with Proxy)
 - DNS Hosted zone
-- Example application (Frontend and Backend with secure connection to DB over a proxy)
 
 ## Kubernetes Add-Ons
 As with infrastructure, Taurus focuses on the necessary Kubernetes add-ons. You need to install the following Kubernetes add-ons:
