@@ -8,8 +8,14 @@ There are two ways how to install Kubernetes addons:
 For installation Kubernetes addons manually we need to have Helm 3 installed.
 
 ### Nginx Ingress
+First we create a Kubernetes namespace dedicated to nginx-ingress:
+```sh
+kubectl create namespace nginx-ingress
+```
+Now install nginx-ingress:
 ```sh
 helm install nginx-ingress stable/nginx-ingress \
+  --namespace="nginx-ingress" \
   --set controller.scope.enabled=true \
   --set controller.scope.namespace="default"
 ```
@@ -18,18 +24,23 @@ Notice we set nginx ingress to follow ingress resources in `default` namespace o
 Other Helm chart options can be found here: https://github.com/helm/charts/tree/master/stable/nginx-ingress
 
 ### ExternalDNS
-First we need to add bitnami Helm repository:
+First we create a Kubernetes namespace dedicated to external-dns:
+```sh
+kubectl create namespace external-dns
+```
+Now we need to add bitnami Helm repository:
 ```sh
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 ```
-Grab the `external_dns_service_account` output variable available when running `terraform output` command and assign it an environment variable:
+Copy a `external_dns_service_account` output variable available when running `terraform output` command and assign it to an environment variable:
 ```sh
-export EXTERNAL_DNS_SA="<SOMETHING>@<GCP_PROJECT>.iam.gserviceaccount.com"
+export EXTERNAL_DNS_SA="external-dns-gke-sa@<GCP_PROJECT>.iam.gserviceaccount.com"
 ```
 Now install external-dns:
 ```sh
 helm install external-dns bitnami/external-dns \
+  --namespace="external-dns" \
   --set provider=google \
   --set serviceAccount.annotations."iam\.gke\.io\/gcp-service-account"=$EXTERNAL_DNS_SA
 ```
@@ -74,9 +85,10 @@ First we need to add fluxcd Helm repository:
 helm repo add fluxcd https://charts.fluxcd.io
 helm repo update
 ```
-Now we install flux:
+Now we install flux (Kubernetes namespace is already created by Terraform together with secret `flux-git-deploy`):
 ```sh
 helm install flux fluxcd/flux \
+  --namespace="flux" \
   --set rbac.create=true \
   --set git.url="git@github.com:nearform/taurus-gcp.git" \
   --set git.secretName="flux-git-deploy" \
@@ -100,6 +112,7 @@ kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/1.1.0/de
 No we install helm operator:
 ```sh
 helm install flux-helm-operator fluxcd/helm-operator \
+  --namespace="flux" \
   --set helm.versions="v3" \
   --set git.ssh.secretName="flux-git-deploy"
 ```

@@ -1,12 +1,5 @@
-resource "random_string" "app" {
-  length      = 6
-  min_numeric = 6
-  upper       = false
-  special     = false
-}
-
 resource "google_service_account" "app" {
-  account_id   = "app-${random_string.app.result}"
+  account_id   = "app-gke-sa"
   display_name = "app"
 }
 
