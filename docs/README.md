@@ -91,10 +91,19 @@ Compared to other CI/CD tools we don't need to manage repository access and perm
 In `.github/workflows` folder you can find an example of CI pipeline.
 
 ### CD
-Part of the `.github/workflows` is also a CD pipeline showing you an idea how an application can be deployed to Kubernetes cluster with Helm via Github Actions.
+Part of the `.github/workflows` is also a CD pipeline showing you an example of how to deploy an application to Kubernetes cluster with Helm via Github Actions.
+
 However, CD use to be very specific per project and you should use an approach most fitting your projects needs.
 
 **Recommendation**: If possible you may consider using any of Gitops tools available (ArgoCD/Flux) with more secure pull approach which doesn't require you to whitelist IP of your CD tool in Kubernetes cluster.
+
+## Logging, Metrics, Alerting
+GCP Managed Kubernetes cluster has already configured metrics and logs scrapping so we don't need to set up anything.
+All metrics and logs are available in Stackdriver family of services called:
+- [Logging]
+- [Monitoring]
+
+To create your custom alerts please follow the official documetation of [Alerting].
 
 # Explore Taurus
 The quickest way to explore Taurus is to view our Quick Start Guide. It covers cloning and pulling Taurus locally. It describes the prerequisites, GCP provisioning and how to install Kubernetes add-ons.
@@ -109,6 +118,10 @@ The quickest way to explore Taurus is to view our Quick Start Guide. It covers c
 
 
 <!-- External Links -->
+[Logging]: https://cloud.google.com/logging
+[Monitoring]: https://cloud.google.com/monitoring
+[Alerting]: https://cloud.google.com/monitoring/alerts
+
 [Workload Identity]: https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
 [CloudSQL Proxy]: https://cloud.google.com/sql/docs/postgres/sql-proxy
 [GKE Authorized Networks]: https://cloud.google.com/kubernetes-engine/docs/how-to/authorized-networks
