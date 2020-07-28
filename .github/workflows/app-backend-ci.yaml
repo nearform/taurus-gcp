@@ -3,7 +3,7 @@ name: Backend CI
 on:
   pull_request:
     paths:
-    - '.github/workflows/app-backend-ci.yml'
+    - '.github/workflows/app-backend-ci.yaml'
     - 'app/backend/**'
 jobs:
   test:

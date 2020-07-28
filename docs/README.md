@@ -8,7 +8,7 @@ Taurus is a Terraform infrastructure stack with bunch of Kubernetes addons and p
 Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage  low-level infrastructure components such as compute instances, storage, and networking, as well as high-level components such as DNS entries, Software as a Service (SaaS) features and so on.
 
 ## High-Level Architecture
-The diagram below displays Taurus high-level architecture with example application consisted of frontend and backend service.
+The diagram below displays Taurus high-level architecture with an example application consisted of frontend and backend services.
 
 ![High level architecture][high-level-architecture]
 Fig.1 Taurus High-Level Architecture
@@ -19,11 +19,11 @@ Taurus provides you with the following capabilities:
 - Example Application with CI/CD
 
 ## Security
-Taurus follows all best practices to keep security on highest level by using:
-- Workload identity (allowing to bind GCP service accounts to Kubernetes service accounts without managing credentials)
-- CloudSQL Proxy to securely access Database from an application over encrypted tunnel
-- Allowing access to Kubernetes cluster only to whitelisted IPs
-- Securely managing Kubernetes addons using Gitops approach with Flux
+Taurus is designed to follow all security best practices in all of its components:
+- [Workload Identity] (allows to bind GCP service accounts to Kubernetes service accounts without a need to manage credentials)
+- [CloudSQL Proxy] to securely access Database from an application over encrypted tunnel
+- Allowing access to Kubernetes cluster only to whitelisted IPs by using [GKE Authorized Networks]
+- Securely managing Kubernetes addons using Gitops approach with [Flux]
 
 ## GCP Provisioning
 Taurus focuses on the main infrastructure components and we expect you will extend it. That's why it's called a boilerplate.
@@ -75,6 +75,27 @@ It is an optional way of how Kubernetes add-ons may be installed.
 
 For more information refer to [GitOps Flux] on Github.
 
+## Example Application
+Parts of the application in `/app` folder are:
+- frontend code (nginx server with Hello World! page)
+- backend code (single API written in node.js connecting to the Database)
+- Dockerfiles for both services
+- Helm charts for both services (correct setup of CloudSQL proxy as a sidecar in the backend service pod)
+- backend CI pipeline (example of continuous integration pipeline in Github Actions)
+- CD pipelines (push approach via Gitub Actions)
+
+### CI
+When hosting a project on Github, Github Actions is the best CI tool we can use.
+Compared to other CI/CD tools we don't need to manage repository access and permissions due to its integration with Github.
+
+In `.github/workflows` folder you can find an example of CI pipeline.
+
+### CD
+Part of the `.github/workflows` is also a CD pipeline showing you an idea how an application can be deployed to Kubernetes cluster with Helm via Github Actions.
+However, CD use to be very specific per project and you should use an approach most fitting your projects needs.
+
+**Recommendation**: If possible you may consider using any of Gitops tools available (ArgoCD/Flux) with more secure pull approach which doesn't require you to whitelist IP of your CD tool in Kubernetes cluster.
+
 # Explore Taurus
 The quickest way to explore Taurus is to view our Quick Start Guide. It covers cloning and pulling Taurus locally. It describes the prerequisites, GCP provisioning and how to install Kubernetes add-ons.
 
@@ -88,6 +109,11 @@ The quickest way to explore Taurus is to view our Quick Start Guide. It covers c
 
 
 <!-- External Links -->
+[Workload Identity]: https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
+[CloudSQL Proxy]: https://cloud.google.com/sql/docs/postgres/sql-proxy
+[GKE Authorized Networks]: https://cloud.google.com/kubernetes-engine/docs/how-to/authorized-networks
+[Flux]: https://fluxcd.io
+
 [Nginx Ingress controller]: https://github.com/helm/charts/tree/master/stable/nginx-ingress
 [Cert-Manager]: https://github.com/jetstack/cert-manager
 [Kubernetes ExternalDNS]: https://github.com/bitnami/charts/tree/master/bitnami/external-dns
