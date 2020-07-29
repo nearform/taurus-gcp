@@ -3,9 +3,9 @@
 Deploy your web application to GCP with ease using __Taurus__.
 
 # Taurus Overview
-Taurus is a Terraform infrastructure stack with bunch of Kubernetes addons and predefined base CI/CD pipelines, a boilerplate for any web application running on Kubernetes managed by GCP cloud.
+Taurus is a Terraform infrastructure stack with a couple of Kubernetes addons, a boilerplate for any web application running on GCP Managed Kubernetes cluster.
 
-Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage  low-level infrastructure components such as compute instances, storage, and networking, as well as high-level components such as DNS entries, Software as a Service (SaaS) features and so on.
+Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage  low-level infrastructure components such as compute instances, storage, and networking, as well as high-level components such as DNS entries, Kubernetes resources and so on.
 
 ## High-Level Architecture
 The diagram below displays Taurus high-level architecture with an example application consisted of frontend and backend services.
