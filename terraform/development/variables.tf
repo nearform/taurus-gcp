@@ -1,34 +1,23 @@
-variable "project_id" {
-  default = "taurus-279813"
+variable "project_name" {}
+variable "project_id" {}
+variable "region" {}
+variable "zone" {}
+variable "hosted_zone_dns_name" {}
+variable "gke_location" {
+  default = "ZONAL" # ZONAL | REGIONAL
 }
-
-variable "project_name" {
-  default = "taurus"
+variable "app_gke_node_pool" {}
+variable "gke_authorized_networks" {
+  type    = list
+  default = []
 }
-
-variable "region" {
-  default = "europe-west1" # St. Ghislain, Belgium
+variable "cloudsql_availability_type" {
+  default = "ZONAL" # ZONAL | REGIONAL
 }
-
-variable "zone" {
-  default = "europe-west1-b"
+variable "cloudsql_tier" {
+  default = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
 }
-
-variable "app_gke_node_pool" {
-  default = {
-    name              = "app"
-    min_node_count    = 1
-    max_node_count    = 10
-    node_machine_type = "n1-standard-1" # https://cloud.google.com/compute/docs/machine-types
-  }
-}
-
-variable "authorized_networks" {
-  type = list
-  default = [
-    {
-      display_name = "admin"
-      cidr_block   = "176.114.240.35/32"
-    }
-  ]
+variable "cloudsql_authorized_networks" {
+  type    = list
+  default = []
 }

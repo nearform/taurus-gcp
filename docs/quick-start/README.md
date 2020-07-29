@@ -107,8 +107,8 @@ There are two types of modules:
   - `example-app` - all related to the example application
 
 ### Provisioning
-1. Edit the Terraform backend storage configuration file in `/terraform/development/main.tf`
-2. Adjust project configuration file in  `/terraform/development/variables.tf`
+1. Edit the Terraform backend storage configuration in beginning of file `/terraform/development/main.tf`
+2. Adjust the project configuration file in  `/terraform/development/config.auto.tfvars.sample` and rename it to `config.auto.tfvars`
 3. Initialise Terraform using the command:
     ```sh
     terraform init

@@ -33,7 +33,7 @@ provider "kubernetes" {
 
 resource "google_dns_managed_zone" "main" {
   name     = var.project_name
-  dns_name = "taurus-example.com."
+  dns_name = var.hosted_zone_dns_name
 }
 
 # Modules
@@ -53,9 +53,9 @@ module "gke" {
   network_self_link    = module.vpc.network_self_link
   subnetwork_self_link = module.vpc.subnetwork_self_link
   cluster_name         = var.project_name
-  location             = var.zone # var.zone | var.region
+  location             = var.gke_location == "REGIONAL" ? var.region : var.zone
   network_policy       = false
-  # authorized_networks  = var.authorized_networks # Uncomment when want restrict access to K8s API
+  authorized_networks  = var.gke_authorized_networks
 }
 
 module "database" {
@@ -64,9 +64,9 @@ module "database" {
   cloudsql_region              = var.region
   cloudsql_db_instance_name    = var.project_name
   cloudsql_network_self_link   = module.vpc.network_self_link
-  cloudsql_tier                = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
-  cloudsql_authorized_networks = var.authorized_networks
-  cloudsql_availability_type   = "ZONAL" # ZONAL | REGIONAL
+  cloudsql_tier                = var.cloudsql_tier
+  cloudsql_authorized_networks = var.cloudsql_authorized_networks
+  cloudsql_availability_type   = var.cloudsql_availability_type
 
   cloudsql_db_name = var.project_name
   cloudsql_db_user = var.project_name

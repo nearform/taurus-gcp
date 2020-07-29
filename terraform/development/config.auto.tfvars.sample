@@ -1,0 +1,19 @@
+project_name         = "your-project-name"
+project_id           = "" # GCP PROJECT ID
+region               = "europe-west1" # St. Ghislain, Belgium
+zone                 = "europe-west1-b"
+hosted_zone_dns_name = "your-domain.com."
+app_gke_node_pool = {
+  name              = "app"
+  min_node_count    = 1
+  max_node_count    = 10
+  node_machine_type = "n1-standard-1" # https://cloud.google.com/compute/docs/machine-types
+}
+gke_authorized_networks = []                 # empty array means everyone with valid Kubernetes credentials has access to the cluster
+cloudsql_tier           = "db-custom-1-3840" # where 1 means 1 CPU and 3840 means 3,75GB RAM
+cloudsql_authorized_networks = [             # empty array means nobody has access to DB
+  {
+    display_name = "db-admin"
+    cidr_block   = "1.1.1.1/32" # IP address of a person accessing database directly
+  }
+]
