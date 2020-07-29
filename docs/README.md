@@ -26,12 +26,12 @@ Taurus is designed to follow all security best practices in all of its component
 - [Flux] to securely manage Kubernetes addons using Gitops approach
 
 ## GCP Provisioning
-Taurus focuses on the main infrastructure components and we expect you will extend it. That's why it's called a boilerplate.
+Taurus focuses on the main infrastructure components and it is expect to be extended.
 
 The main GCP components are:
 - Networking (VPC)
-- Kubernetes (GKE, IAM with Workload Identity, add-ons)
-- Database (CloudSQL (Postgres) with Proxy)
+- Kubernetes (GKE, Workload Identity IAM service accounts binding, add-ons)
+- Database (CloudSQL Postgres)
 - DNS Hosted zone
 
 ## Kubernetes Add-Ons
@@ -44,7 +44,7 @@ As with infrastructure, Taurus focuses on the necessary Kubernetes add-ons. You 
 Each add-on is described in more detail below. Details on how to install these add-ons are available in the following section [Install Kubernetes Add-Ons].
 
 ### Helm 
-Helm is a tool that streamlines installing and managing Kubernetes applications.
+Helm is The package manager for Kubernetes. It can be used to install Kubernetes addons as well as applications on a cluster.
 
 For more information on Helm charts, refer to [The Chart Template Developer's Guide](https://docs.helm.sh/chart_template_guide/#the-chart-template-developer-s-guide).
 
@@ -90,11 +90,19 @@ Compared to other CI/CD tools we don't need to manage repository access and perm
 In `.github/workflows` folder you can find an example of CI pipeline.
 
 ### CD
-Part of the `.github/workflows` is also a CD pipeline showing you an example of how to deploy an application to Kubernetes cluster with Helm via Github Actions.
+Part of the `.github/workflows` are also CD pipelines deploy the example application to Kubernetes cluster with Helm via Github Actions.
 
-However, CD use to be very specific per project and you should use an approach most fitting your projects needs.
+To make the CD pipeline work you need to first manually set few Secrets in your Github Repository clone of Taurus:
+- `GCP_SA_EMAIL` - service account name (you can find the value in GCP `Security -> Secret Manager`)
+- `GCP_SA_KEY` - service account credentials (you can find the value in GCP `Security -> Secret Manager`)
+- `GCP_CLUSTER_NAME` - name of the GKE cluster
+- `GCP_PROJECT_NAME` - GCP project ID
 
-**Recommendation**: If possible you may consider using any of Gitops tools available (ArgoCD/Flux) with more secure pull approach which doesn't require you to whitelist IP of your CD tool in Kubernetes cluster.
+**Note:** In `/terraform/development/github-actions-service-account.tf` file is the definition of GCP service account referenced and used in Github Action CD pipeline (`GCP_SA_EMAIL`, `GCP_SA_KEY`). You may delete the file if using GitOps approach.
+
+Every project has different CD requirements so consider the CD pipeline only as an example of one of the options.
+
+**Recommendation**: If possible consider using a GitOps tool (ArgoCD/Flux) with more secure pull approach.
 
 ## Logging, Metrics, Alerting
 GCP Managed Kubernetes cluster has already configured metrics and logs scrapping so we don't need to set up anything.
