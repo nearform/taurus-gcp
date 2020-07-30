@@ -4,4 +4,5 @@
     - [Overview](/helm/?id=overview)
     - [Manual installation](/helm/?id=manual-installation)
     - [Install with Flux](/helm/?id=install-with-flux)
+- [Example Application](/example-app/)
 - [Contribute to Taurus](/contributing/)

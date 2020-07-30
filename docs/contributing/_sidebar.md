@@ -1,6 +1,7 @@
 - [Home](/)
 - [Quick Start Guide](/quick-start/)
 - [Kubernetes Add-Ons](/helm/)
+- [Example Application](/example-app/)
 - [Contribute to Taurus](/contributing/)
   - [Code](/contributing/?id=code)
   - [Documentation](/contributing/?id=documentation)

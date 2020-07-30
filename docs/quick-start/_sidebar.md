@@ -5,4 +5,5 @@
     - [GCP Prerequisites](/quick-start/?id=gcp-prerequisites)
     - [Terraform](/quick-start/?id=terraform)
 - [Kubernetes Add-Ons](/helm/)
+- [Example Application](/example-app/)
 - [Contribute to Taurus](/contributing/)
