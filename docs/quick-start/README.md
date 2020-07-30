@@ -118,10 +118,10 @@ There are two types of modules:
     terraform apply
     ```
 5. Once the Kubernetes cluster is created, fetch and update the `~/.kube/config` file by going to Kubernetes cluster detail on GCP web console and copy paste and run the command provided in `Connect` section
-6. Install Kubernetes add-ons by following more detailed section [Install Kubernetes Add-Ons].
+6. Install Kubernetes add-ons by following more detailed section [Kubernetes Add-Ons].
 
 <!-- Internal Links -->
-[Install Kubernetes Add-Ons]: /helm/
+[Kubernetes Add-Ons]: /helm/
 
 <!-- External Links -->
 [gc-sdk-install]: https://cloud.google.com/sdk/install

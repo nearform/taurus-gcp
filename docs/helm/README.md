@@ -1,8 +1,37 @@
-# Install Kubernetes Add-Ons 
-There are two ways how to install Kubernetes addons:
-- manually from our laptop
-- automatically by Flux operator (Gitops approach)
-- by other Gitops operaptor like ArgoCD (not provided by Taurus)
+# Kubernetes Add-Ons 
+
+## Overview
+
+### Helm 
+Helm is The package manager for Kubernetes. It can be used to install Kubernetes addons as well as applications on a cluster.
+
+For more information on Helm charts, refer to [The Chart Template Developer's Guide](https://docs.helm.sh/chart_template_guide/#the-chart-template-developer-s-guide).
+
+### Nginx Ingress Controller
+An Ingress is configured to give services externally-reachable entrypoints, load balance traffic, terminate SSL or Transport Layer Security (TLS), and offer name-based virtual hosting. The Ingress controller is responsible for fulfilling the Kubernetes Ingress by provisioning an GCP TCP Loadbalancer.
+
+For more information, refer to [Nginx Ingress controller] on GitHub.
+
+### Cert-Manager
+Cert-Manager automates the management and issuance of TLS certificates from various issuing sources.
+
+It will ensure certificates are valid and up to date periodically, and attempt to renew certificates at an appropriate time before expiry.
+
+For more information refer to [Cert-Manager] on Github.
+
+### ExternalDNS
+ExternalDNS auto-synchronises exposed Kubernetes Services and Ingresses with DNS providers.
+
+ExternalDNS is not a DNS server itself, but instead configures other DNS providers, for example, GCP Cloud DNS. It allows you to control DNS records dynamically via Kubernetes resources in a DNS provider-agnostic way.
+
+For more information refer to [Kubernetes ExternalDNS] on GitHub.
+
+### Flux
+Flux is a lightweight GitOps operator for Kubernetes used for automation of installation of Kubernetes resources.
+
+It is an optional way of how Kubernetes add-ons may be installed.
+
+For more information refer to [Flux] on Github.
 
 ## Manual installation
 For installation Kubernetes addons manually we need to have Helm 3 installed.
@@ -70,7 +99,7 @@ helm install cert-manager jetstack/cert-manager \
 
 Other Helm chart options can be found here: https://github.com/jetstack/cert-manager
 
-## Flux
+## Install with Flux
 *Flux is a tool that automatically ensures that the state of your Kubernetes cluster matches the configuration you’ve supplied in Git. It uses an operator in the cluster to trigger deployments inside Kubernetes, which means that you don’t need a separate continuous delivery tool.* - [Official documentation](https://fluxcd.io)
 
 Installation Kubernetes addons via Flux compared to manual installation gives us an automation of provisioning in the most secure way. In such case Kubernetes API can be closed to the internet and we still be able to manage our addons.
@@ -123,3 +152,9 @@ Other Helm chart options can be found here: https://github.com/fluxcd/helm-opera
 Now with flux operator installed we need to grant it an access to our config repository by adding a RSA public key to a Deploy keys in the repository settings.
 1. Navigate to your clone of Taurus Github repository `Settings -> Deploy keys` and create a new key called `flux` with value set to a `flux_public_key` output variable available when running `terraform output` command. You can leave `Allow write access` unchecked.
 2. Now flux operator starts watching our repository and installs all our Kubernetes addons. It will also check the repository every minute and propagate any observed change we make there.
+
+<!-- External Links -->
+[Nginx Ingress controller]: https://github.com/helm/charts/tree/master/stable/nginx-ingress
+[Cert-Manager]: https://github.com/jetstack/cert-manager
+[Kubernetes ExternalDNS]: https://github.com/bitnami/charts/tree/master/bitnami/external-dns
+[Flux]: https://github.com/fluxcd/flux/tree/master/chart/flux

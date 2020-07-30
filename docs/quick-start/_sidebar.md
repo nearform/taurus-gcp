@@ -4,5 +4,5 @@
     - [Clone the Source Repository](/quick-start/?id=clone-the-source-repository)
     - [GCP Prerequisites](/quick-start/?id=gcp-prerequisites)
     - [Terraform](/quick-start/?id=terraform)
-- [Install Kubernetes Add-Ons](/helm/)
+- [Kubernetes Add-Ons](/helm/)
 - [Contribute to Taurus](/contributing/)
