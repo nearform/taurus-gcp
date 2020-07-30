@@ -27,9 +27,11 @@ ExternalDNS is not a DNS server itself, but instead configures other DNS provide
 For more information refer to [Kubernetes ExternalDNS] on GitHub.
 
 ### Flux
-Flux is a lightweight GitOps operator for Kubernetes used for automation of installation of Kubernetes resources.
+*Flux is a tool that automatically ensures that the state of your Kubernetes cluster matches the configuration you’ve supplied in Git. It uses an operator in the cluster to trigger deployments inside Kubernetes, which means that you don’t need a separate continuous delivery tool.* - [Official documentation](https://fluxcd.io)
 
-It is an optional way of how Kubernetes add-ons may be installed.
+Flux compared to other GitOps tools is a very lightweight GitOps operator with very easy setup.
+
+**Note:** Flux is an optional way of how to install Kubernetes add-ons in automatic manner.
 
 For more information refer to [Flux] on Github.
 
@@ -100,8 +102,6 @@ helm install cert-manager jetstack/cert-manager \
 Other Helm chart options can be found here: https://github.com/jetstack/cert-manager
 
 ## Install with Flux
-*Flux is a tool that automatically ensures that the state of your Kubernetes cluster matches the configuration you’ve supplied in Git. It uses an operator in the cluster to trigger deployments inside Kubernetes, which means that you don’t need a separate continuous delivery tool.* - [Official documentation](https://fluxcd.io)
-
 Installation Kubernetes addons via Flux compared to manual installation gives us an automation of provisioning in the most secure way. In such case Kubernetes API can be closed to the internet and we still be able to manage our addons.
 
 Taurus has precreated a folder called `/flux` which serves as a config repository to Flux operator and has configuration for all Taurus Kubernetes addons.
