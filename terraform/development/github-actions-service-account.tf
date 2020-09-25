@@ -43,18 +43,16 @@ resource "google_secret_manager_secret_version" "github_actions_sa_email" {
   secret_data = google_service_account.github_actions.email
 }
 
-# When GCR Storage Bucket doesn't exist we need to create it manually bu running:
-# gcloud auth configure-docker
-# docker pull busybox
-# docker tag busybox eu.gcr.io/PROJECT_ID/busybox:latest
-# docker push eu.gcr.io/PROJECT_ID/busybox:latest
-resource "google_storage_bucket_iam_member" "github_actions_eu_gcr" {
-  bucket = "eu.artifacts.${var.project_id}.appspot.com"
-  role   = "roles/storage.admin"
+resource "google_project_iam_member" "github_actions_gke" {
+  role   = "roles/container.developer"
   member = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
-resource "google_project_iam_member" "github_actions_gke" {
-  role   = "roles/container.developer"
+resource "google_artifact_registry_repository_iam_member" "github_actions_ar" {
+  provider = google-beta
+
+  location = module.example_app.artifact_registry_location
+  repository = module.example_app.artifact_registry_name
+  role   = "roles/artifactregistry.writer"
   member = "serviceAccount:${google_service_account.github_actions.email}"
 }

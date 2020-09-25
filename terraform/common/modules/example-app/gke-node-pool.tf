@@ -27,7 +27,7 @@ resource "google_container_node_pool" "main" {
 
     # https://cloud.google.com/sdk/gcloud/reference/container/clusters/create#--scopes
     oauth_scopes = [
-      "storage-ro", # Access to GCR private docker registry
+      "storage-ro", # Access to Artifact Registry
       "logging-write",
       "monitoring",
     ]

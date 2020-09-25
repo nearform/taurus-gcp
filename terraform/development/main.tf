@@ -88,4 +88,6 @@ module "example_app" {
   db_name                  = module.database.cloudsql_db_name
   db_user                  = module.database.cloudsql_db_user
   db_pass                  = module.database.cloudsql_db_pass
+
+  ar_location = var.region
 }

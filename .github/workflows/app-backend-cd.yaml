@@ -19,13 +19,14 @@ jobs:
           export_default_credentials: true
       - name: gcloud auth configure-docker
         run: |
-          gcloud auth configure-docker
+          gcloud components install beta
+          gcloud beta auth configure-docker europe-west1-docker.pkg.dev
       - name: get kubeconfig
         run: |
           gcloud container clusters get-credentials ${{ secrets.GCP_CLUSTER_NAME }} --zone europe-west1-b --project ${{ secrets.GCP_PROJECT_NAME }}
       - name: prepare docker image name
         run: |
-          echo "::set-env name=DOCKER_IMAGE::eu.gcr.io/${{ secrets.GCP_PROJECT_NAME }}/backend"
+          echo "::set-env name=DOCKER_IMAGE::europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_NAME }}/app/backend"
           echo "::set-env name=DOCKER_IMAGE_TAG::$GITHUB_SHA"
       - name: docker build
         run: |
